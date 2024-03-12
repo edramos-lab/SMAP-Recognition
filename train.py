@@ -727,15 +727,23 @@ def auroc2(model, test_loader, num_classes):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-dataset','--dataset_folder', help='Path to the dataset folder', required=False,default="/home/edramos/Documents/MLOPS/ImageClassification-MFG/things-8")
+    parser.add_argument('-lr','--lr', help='Learning rate for the optimizer', required=False, default=0.0001,type=float)
+    parser.add_argument('-batchsize','--batch_size', help='Batch size for training', required=False, default=8, type=int)
     args = parser.parse_args()
     dataset_folder = args.dataset_folder
+    lr = args.lr
+    batch_size = args.batch_size
+    print(f"lr: {lr}, type: {type(lr)}")
+    print(f"batch_size: {batch_size}, type: {type(batch_size)}")
+    
+    
     print(f"dataset_folder: {dataset_folder}, type: {type(dataset_folder)}")  
     # Set up default values
     n_splits = 5
     epochs = 10
     model = "convnextv2_tiny"#"efficientnet_b0"
-    lr = 0.0001
-    batch_size = 8
+    #lr = 0.0001
+    #batch_size = 8
     subset_ratio = 0.95
     project_name = "SmartAssemblyProcess"
     #dataset_folder = "/home/edramos/Documents/MLOPS/SmartAssemblyProcessRecognition/CustomDataset/"
