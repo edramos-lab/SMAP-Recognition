@@ -725,6 +725,11 @@ def auroc2(model, test_loader, num_classes):
     
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-dataset','--dataset_folder', help='Path to the dataset folder', required=False,default="/home/edramos/Documents/MLOPS/ImageClassification-MFG/things-8")
+    args = parser.parse_args()
+    dataset_folder = args.dataset_folder
+    print(f"dataset_folder: {dataset_folder}, type: {type(dataset_folder)}")  
     # Set up default values
     n_splits = 5
     epochs = 10
@@ -733,7 +738,7 @@ if __name__ == '__main__':
     batch_size = 8
     subset_ratio = 0.95
     project_name = "SmartAssemblyProcess"
-    dataset_folder = "/home/edramos/Documents/MLOPS/SmartAssemblyProcessRecognition/CustomDataset/"
+    #dataset_folder = "/home/edramos/Documents/MLOPS/SmartAssemblyProcessRecognition/CustomDataset/"
     mlflowuri = "http://127.0.0.1:5000"
     dataset_multiplier = 1
 
