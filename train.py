@@ -112,9 +112,10 @@ def preprocess_and_load_data(dataset_multiplier,dataset_folder, image_size, batc
         RandomHorizontalFlip(),
         RandomVerticalFlip(),
         RandomRotation(45),
-        ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+        ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),  # Reduced effect
         ToTensor(),
-        Normalize(mean=[0.7741, 0.8521, 0.9056], std=[0.1562, 0.1865, 0.1919]),
+        # Updated Normalize values (example only; calculate based on your dataset)
+        Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     # Load datasets
