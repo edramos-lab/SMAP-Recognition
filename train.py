@@ -61,7 +61,6 @@ def plot_scatter_dataset(image_list):
     plt.xlabel('Width')
     plt.ylabel('Height')
     plt.title('dataset Statistics')
-    plt.show()
     plt.savefig("scatter_plot.png")
     return plt
 
@@ -78,7 +77,6 @@ def show_images(images, labels, ncols=4):
     for ax in axs[i+1:]:
         ax.axis('off')
     plt.tight_layout()
-    plt.show()
     plt.savefig("random_images.png")
 
 # Load random samples from the test dataset
@@ -735,7 +733,7 @@ if __name__ == '__main__':
     batch_size = args.batch_size
     print(f"lr: {lr}, type: {type(lr)}")
     print(f"batch_size: {batch_size}, type: {type(batch_size)}")
-    
+
     
     print(f"dataset_folder: {dataset_folder}, type: {type(dataset_folder)}")  
     # Set up default values
