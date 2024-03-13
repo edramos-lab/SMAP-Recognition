@@ -733,6 +733,7 @@ if __name__ == '__main__':
     dataset_folder = args.dataset_folder
     lr = args.lr
     batch_size = args.batch_size
+    epochs = args.epochs
     print(f"lr: {lr}, type: {type(lr)}")
     print(f"batch_size: {batch_size}, type: {type(batch_size)}")
     print(f"epochs: {args.epochs}, type: {type(args.epochs)}")
@@ -764,7 +765,7 @@ if __name__ == '__main__':
         #dataset_folder = '/home/edramos/Documents/MLOPS/ImageClassification-MFG/nigel-chassises-1'
         if dataset_folder == None:
             dataset_folder = '/home/edramos/Documents/MLOPS/SmartAssemblyProcessRecognition/CustomDataset/'
-        image_size = (225, 224)  # Example image size
+        image_size = (224, 224)  # Example image size
         data_loaders, subset_dataset, balancing_efficiency, num_classes,total_samples,train_size,test_size = preprocess_and_load_data(dataset_multiplier,dataset_folder, image_size, batch_size, subset_ratio)
 
         # Example of how to use the data_loaders and subset_dataset
