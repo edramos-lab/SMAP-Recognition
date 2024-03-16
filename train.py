@@ -112,7 +112,7 @@ def preprocess_and_load_data(dataset_multiplier,dataset_folder, image_size, batc
         RandomHorizontalFlip(),
         RandomVerticalFlip(),
         RandomRotation(45),
-        ColorJitter(brightness=0.05, contrast=0.05, saturation=0.05),  # Reduced effect
+        ColorJitter(brightness=0.01, contrast=0.01, saturation=0.01),  # Reduced effect
         ToTensor(),
         # Updated Normalize values (example only; calculate based on your dataset)
         Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
@@ -726,17 +726,22 @@ def auroc2(model, test_loader, num_classes):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-dataset','--dataset_folder', help='Path to the dataset folder', required=False,default="/home/edramos/Documents/MLOPS/ImageClassification-MFG/things-8")
+    parser.add_argument('-subset_ratio','--subset_ratio', help='Fraction of data to use in the subset for each class', required=False, default=0.99, type=float)
     parser.add_argument('-lr','--lr', help='Learning rate for the optimizer', required=False, default=0.0001,type=float)
-    parser.add_argument('-batchsize','--batch_size', help='Batch size for training', required=False, default=8, type=int)
+    parser.add_argument('-batchsize','--batch_size', help='Batch size for training', required=False, default=32, type=int)
     parser.add_argument('-epochs','--epochs', help='Number of epochs for training', required=False, default=10, type=int)
+    parser.add_argument('-dataset_multiplier','--dataset_multiplier', help='Mmultiplier of dataset to use', required=False, default=1, type=int)    
     args = parser.parse_args()
     dataset_folder = args.dataset_folder
+    subset_ratio = args.subset_ratio
+    dataset_multiplier = args.dataset_multiplier
     lr = args.lr
     batch_size = args.batch_size
     epochs = args.epochs
     print(f"lr: {lr}, type: {type(lr)}")
     print(f"batch_size: {batch_size}, type: {type(batch_size)}")
     print(f"epochs: {args.epochs}, type: {type(args.epochs)}")
+    print(f"dataset_multiplier: {args.dataset_multiplier}, type: {type(args.dataset_multiplier)}")
 
 
 
@@ -748,11 +753,11 @@ if __name__ == '__main__':
     model = "convnextv2_tiny"#"efficientnet_b0"
     #lr = 0.0001
     #batch_size = 8
-    subset_ratio = 0.95
+    
     project_name = "SmartAssemblyProcess"
     #dataset_folder = "/home/edramos/Documents/MLOPS/SmartAssemblyProcessRecognition/CustomDataset/"
     mlflowuri = "http://127.0.0.1:5000"
-    dataset_multiplier = 1
+    
 
     # Connect to MLflow server
     mlflow.set_tracking_uri("http://127.0.0.1:5000")
