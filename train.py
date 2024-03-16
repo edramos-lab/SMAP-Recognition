@@ -731,6 +731,7 @@ if __name__ == '__main__':
     parser.add_argument('-batchsize','--batch_size', help='Batch size for training', required=False, default=32, type=int)
     parser.add_argument('-epochs','--epochs', help='Number of epochs for training', required=False, default=10, type=int)
     parser.add_argument('-dataset_multiplier','--dataset_multiplier', help='Mmultiplier of dataset to use', required=False, default=1, type=int)    
+    parser.add_argument('-model','--model', help='Model to use', required=False, default="convnextv2_tiny")
     args = parser.parse_args()
     dataset_folder = args.dataset_folder
     subset_ratio = args.subset_ratio
@@ -738,10 +739,14 @@ if __name__ == '__main__':
     lr = args.lr
     batch_size = args.batch_size
     epochs = args.epochs
+    model = args.model
     print(f"lr: {lr}, type: {type(lr)}")
     print(f"batch_size: {batch_size}, type: {type(batch_size)}")
     print(f"epochs: {args.epochs}, type: {type(args.epochs)}")
     print(f"dataset_multiplier: {args.dataset_multiplier}, type: {type(args.dataset_multiplier)}")
+    print(f"subset_ratio: {args.subset_ratio}, type: {type(args.subset_ratio)}")
+    print(f"model: {args.model}, type: {type(args.model)}")
+
 
 
 
@@ -750,7 +755,7 @@ if __name__ == '__main__':
     # Set up default values
     n_splits = 5
     #epochs = 10
-    model = "convnextv2_tiny"#"efficientnet_b0"
+    #model = "convnextv2_tiny"#"efficientnet_b0"
     #lr = 0.0001
     #batch_size = 8
     

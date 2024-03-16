@@ -44,7 +44,7 @@ if __name__ == '__main__':
             transforms.ToPILImage(),
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.7741, 0.8521, 0.9056], std=[0.1562, 0.1865, 0.1919])
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
         frame = transform(frame)
         frame = frame.unsqueeze(0)
@@ -72,10 +72,10 @@ if __name__ == '__main__':
         # Display the result
         class_label = torch.argmax(class_probability).item()
         
-    
-        # Display the class label
+        print(class_label)         # Display the class label
         label = f"Class: {class_label}"
         class_name_predicted=class_names[class_label]
+        print(class_name_predicted)
         frame = cv2.cvtColor(src=frame, code=cv2.COLOR_RGB2BGR)
         cv2.putText(frame,class_name_predicted, 
         bottomLeftCornerOfText, 
