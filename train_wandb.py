@@ -877,7 +877,7 @@ if __name__ == '__main__':
     
     project_name = "SmartAssemblyProcess"
     #dataset_folder = "/home/edramos/Documents/MLOPS/SmartAssemblyProcessRecognition/CustomDataset/"
-
+    wandb.init(project="SmartAssemblyProcess")
 
 
     #dataset_folder = '/home/edramos/Documents/MLOPS/ImageClassification-MFG/nigel-chassises-1'
@@ -901,7 +901,7 @@ if __name__ == '__main__':
     architecture= model
         
     
-    wandb.init(project="SmartAssemblyProcess")
+    
     wandb.config.architecture = architecture
     wandb.config.epochs = epochs
     wandb.config.batch_size = batch_size
