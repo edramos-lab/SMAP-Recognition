@@ -487,7 +487,7 @@ def train_model_kfold_mlflow(subset_dataset, project_name, architecture, lr, n_s
 
     return model, optimizer, scheduler
 
-def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, batch_size, image_size):
+def test_model_wandb_old(model, test_loader, architecture, optimizer, scheduler, batch_size, image_size):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     test_accuracy = 0  # Placeholder for accuracy calculation
@@ -689,6 +689,100 @@ def test_model_mlflow(model, test_loader,architecture, optimizer, scheduler, bat
     torch.cuda.empty_cache()
 
     mlflow.end_run()
+def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, batch_size, image_size):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.eval()
+    test_accuracy = 0  # Placeholder for accuracy calculation
+
+    # Initialize lists to store true and predicted labels
+    true_labels = []
+    predicted_labels = []
+
+    # Evaluate the model on the test split
+    with torch.no_grad():
+        correct = 0
+        total = 0
+        for images, labels in test_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+
+            outputs = model(images)
+            _, preds = torch.max(outputs, 1)
+
+            correct += preds.eq(labels).sum().item()
+            total += len(labels)
+
+            # For detailed metrics
+            true_labels.extend(labels.cpu().numpy())
+            predicted_labels.extend(preds.cpu().numpy())
+
+    # Convert lists to NumPy arrays for sklearn metrics
+    true_labels = np.array(true_labels)
+    predicted_labels = np.array(predicted_labels)
+
+    # Calculate metrics
+    confusion = confusion_matrix(true_labels, predicted_labels)
+    test_accuracy = 100 * accuracy_score(true_labels, predicted_labels)
+    test_precision = 100 * precision_score(true_labels, predicted_labels, average='weighted')
+    test_recall = 100 * recall_score(true_labels, predicted_labels, average='weighted')
+    test_f1_score = 100 * f1_score(true_labels, predicted_labels, average='weighted')
+    matthews_corr = 100 * matthews_corrcoef(true_labels, predicted_labels)
+
+    # Log metrics using wandb
+    wandb.log({"Test Accuracy": test_accuracy})
+    wandb.log({"Test Precision": test_precision})
+    wandb.log({"Test Recall": test_recall})
+    wandb.log({"Test F1 Score": test_f1_score})
+    wandb.log({"Matthews Correlation Coefficient": matthews_corr})
+
+    # Calculate the confusion matrix
+    confusion = confusion_matrix(true_labels, predicted_labels)
+
+    # Convert the confusion matrix to a DataFrame
+    confusion_df = pd.DataFrame(confusion)
+
+    # Save the DataFrame as a CSV file
+    confusion_df.to_csv("confusion_matrix.csv", index=False)
+
+    # Plot and save the confusion matrix as a .png file
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(confusion, annot=True, fmt="d", cmap="Blues")
+    plt.title("Confusion Matrix")
+    plt.xlabel("Predicted Label")
+    plt.ylabel("True Label")
+    plt.savefig("confusion_matrix.png")
+
+    # Generate the confusion report
+    confusion_report = classification_report(true_labels, predicted_labels)
+
+    # Save the classification report to a text file
+    report_filename = f"classification_report_{architecture}.txt"
+    with open(report_filename, "w") as report_file:
+        report_file.write(confusion_report)
+
+    # Log artifacts using wandb
+    wandb.save("confusion_matrix.csv")
+    wandb.save("confusion_matrix.png")
+    wandb.save(report_filename)
+
+    print("Test accuracy: %.3f" % test_accuracy)
+    print("Confusion Matrix:\n", confusion)
+    print("Test Precision: {:.6f}".format(test_precision))
+    print("Test Recall: {:.6f}".format(test_recall))
+    print("Test F1 Score: {:.6f}".format(test_f1_score))
+    print("Matthews Correlation Coefficient: {:.6f}".format(matthews_corr))
+
+    # Save the model using wandb with a timestamp
+    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    model_name = f"model_{timestamp}"
+    wandb.save(model_name)
+    roc_fig = auroc2(model, test_loader, num_classes)
+
+    wandb.save("roc-auc.png")
+
+    # Clean up CUDA memory
+    torch.cuda.reset_max_memory_allocated()
+    torch.cuda.empty_cache()
 
 def auroc(model, test_loader, num_classes):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
