@@ -761,9 +761,9 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
         report_file.write(confusion_report)
 
     # Log artifacts using wandb
-    wandb.save("confusion_matrix.csv")
-    wandb.save("confusion_matrix.png")
-    wandb.save(report_filename)
+    wandb.log_artifact("confusion_matrix.csv")
+    wandb.log_artifact("confusion_matrix.png")
+    wandb.log_artifact(report_filename)
 
     print("Test accuracy: %.3f" % test_accuracy)
     print("Confusion Matrix:\n", confusion)
