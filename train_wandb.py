@@ -736,7 +736,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     wandb.log({"Matthews Correlation Coefficient": matthews_corr})
 
     # Calculate the confusion matrix
-    confusion = confusion_matrix(true_labels, predicted_labels, labels=class_names)
+    confusion = confusion_matrix(true_labels, predicted_labels)
 
     # Convert the confusion matrix to a DataFrame
     confusion_df = pd.DataFrame(confusion)

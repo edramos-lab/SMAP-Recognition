@@ -47,23 +47,23 @@ if __name__ == '__main__':
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
         
-        frame = transform(frame)
-        frame = frame.unsqueeze(0)
-        frame = frame.to(device)
+        frame_to_inference = transform(frame)
+        frame_to_inference = frame_to_inference.unsqueeze(0)
+        frame_to_inference = frame_to_inference.to(device)
 
         # Run inference
         with torch.no_grad():
-            prediction = model(frame)
+            prediction = model(frame_to_inference)
             # Assuming the model outputs a single class probability
             class_probability = torch.softmax(prediction, dim=1)[0]
 
         # Transfer the results back to CPU if necessary
         class_probability = class_probability.cpu()
 
-        frame = frame.squeeze().permute(1, 2, 0).cpu().numpy()
+        #frame = frame.squeeze().permute(1, 2, 0).cpu().numpy()
 
         # Convert from float (0.0 to 1.0) to uint8 (0 to 255)
-        frame = (frame * 255).astype(np.uint8)
+        #frame = (frame * 255).astype(np.uint8)
 
         # Since the normalization might have altered colors, direct conversion without denormalization
         # might lead to unusual color representations, but it will be suitable for display.
@@ -77,7 +77,7 @@ if __name__ == '__main__':
         label = f"Class: {class_label}"
         class_name_predicted=class_names[class_label]
         print(class_name_predicted)
-        frame = cv2.cvtColor(src=frame, code=cv2.COLOR_RGB2BGR)
+        frame = cv2.cvtColor(src=frame, code=cv2.COLOR_BGR2BGRA)  # Convert color space from BGR to RGB
         cv2.putText(frame,class_name_predicted, 
         bottomLeftCornerOfText, 
         font, 
