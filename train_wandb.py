@@ -736,7 +736,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     wandb.log({"Matthews Correlation Coefficient": matthews_corr})
 
     # Calculate the confusion matrix
-    confusion = confusion_matrix(true_labels, predicted_labels)
+    confusion = confusion_matrix(true_labels, predicted_labels, labels=class_names)
 
     # Convert the confusion matrix to a DataFrame
     confusion_df = pd.DataFrame(confusion)
@@ -752,6 +752,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     plt.ylabel("True Label")
     plt.savefig("confusion_matrix.png")
 
+
     # Generate the confusion report
     confusion_report = classification_report(true_labels, predicted_labels)
 
@@ -761,9 +762,8 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
         report_file.write(confusion_report)
 
     # Log artifacts using wandb
-    wandb.log_artifact("confusion_matrix.csv")
-    wandb.log_artifact("confusion_matrix.png")
-    wandb.log_artifact(report_filename)
+    wandb.log({"Confusion Matrix": wandb.Image("confusion_matrix.png"),"Confusion Report": confusion_report})
+   
 
     print("Test accuracy: %.3f" % test_accuracy)
     print("Confusion Matrix:\n", confusion)
@@ -779,6 +779,8 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     roc_fig = auroc2(model, test_loader, num_classes)
 
     wandb.save("roc-auc.png")
+    wandb.log({"ROC AUC": wandb.Image("roc-auc.png")})
+   
 
     # Clean up CUDA memory
     torch.cuda.reset_max_memory_allocated()
