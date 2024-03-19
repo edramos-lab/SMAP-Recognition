@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/495127363287546636/9d5d81ee78934c88b7b0884412ec8286/artifacts
+end_time: 1710812115714
+entry_point_name: ''
+experiment_id: '495127363287546636'
+lifecycle_stage: active
+run_id: 9d5d81ee78934c88b7b0884412ec8286
+run_name: big-rat-732
+run_uuid: 9d5d81ee78934c88b7b0884412ec8286
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1710812115700
+status: 4
+tags: []
+user_id: edramos

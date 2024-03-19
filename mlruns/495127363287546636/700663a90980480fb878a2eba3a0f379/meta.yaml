@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/495127363287546636/700663a90980480fb878a2eba3a0f379/artifacts
+end_time: 1710812507027
+entry_point_name: ''
+experiment_id: '495127363287546636'
+lifecycle_stage: active
+run_id: 700663a90980480fb878a2eba3a0f379
+run_name: debonair-deer-473
+run_uuid: 700663a90980480fb878a2eba3a0f379
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1710812424531
+status: 3
+tags: []
+user_id: edramos

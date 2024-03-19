@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/495127363287546636/717afc0b8b884b3aab5a1fde2def9070/artifacts
+end_time: 1710812335480
+entry_point_name: ''
+experiment_id: '495127363287546636'
+lifecycle_stage: active
+run_id: 717afc0b8b884b3aab5a1fde2def9070
+run_name: delightful-ape-471
+run_uuid: 717afc0b8b884b3aab5a1fde2def9070
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1710812252459
+status: 3
+tags: []
+user_id: edramos

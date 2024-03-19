@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/495127363287546636/8d3e88adb6ea45828f39766c87d39a93/artifacts
+end_time: 1710812359306
+entry_point_name: ''
+experiment_id: '495127363287546636'
+lifecycle_stage: active
+run_id: 8d3e88adb6ea45828f39766c87d39a93
+run_name: intelligent-worm-138
+run_uuid: 8d3e88adb6ea45828f39766c87d39a93
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1710812335705
+status: 4
+tags: []
+user_id: edramos

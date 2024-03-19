@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/495127363287546636/4e99323a58734d0289501580476a0e51/artifacts
+end_time: 1710812839099
+entry_point_name: ''
+experiment_id: '495127363287546636'
+lifecycle_stage: active
+run_id: 4e99323a58734d0289501580476a0e51
+run_name: nervous-toad-507
+run_uuid: 4e99323a58734d0289501580476a0e51
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1710812413864
+status: 3
+tags: []
+user_id: edramos

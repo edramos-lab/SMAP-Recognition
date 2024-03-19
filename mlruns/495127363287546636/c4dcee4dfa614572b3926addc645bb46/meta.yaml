@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/495127363287546636/c4dcee4dfa614572b3926addc645bb46/artifacts
+end_time: 1710812663743
+entry_point_name: ''
+experiment_id: '495127363287546636'
+lifecycle_stage: active
+run_id: c4dcee4dfa614572b3926addc645bb46
+run_name: resilient-duck-456
+run_uuid: c4dcee4dfa614572b3926addc645bb46
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1710812586262
+status: 3
+tags: []
+user_id: edramos

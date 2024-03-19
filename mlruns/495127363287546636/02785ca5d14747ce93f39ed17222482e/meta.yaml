@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/495127363287546636/02785ca5d14747ce93f39ed17222482e/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '495127363287546636'
+lifecycle_stage: active
+run_id: 02785ca5d14747ce93f39ed17222482e
+run_name: awesome-carp-193
+run_uuid: 02785ca5d14747ce93f39ed17222482e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1710813115140
+status: 1
+tags: []
+user_id: edramos

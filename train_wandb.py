@@ -229,6 +229,8 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
     image_list = glob.glob(dataset_folder + "/train" + '/*/*.jpg')
     plot_scatter_dataset(image_list)
     wandb.log({"scatter_plot": wandb.Image("scatter_plot.png")})
+    distribution(dataset_folder)
+    wandb.log({"dataset_distribution": wandb.Image("dataset_distribution.png")})
 
     num_classes = len(dataclasses.classes)
     print("Num classes: ", num_classes)
@@ -933,17 +935,49 @@ def auroc2(model, test_loader, num_classes):
     plt.close()
     return plt
 
+import os
+import matplotlib.pyplot as plt
+from torchvision.datasets import ImageFolder
+from collections import Counter
+
+def distribution(dataset_folder):
+    train_dataset = ImageFolder(os.path.join(dataset_folder, "train"))
+    class_counts = dict(sorted(Counter(train_dataset.targets).items()))
+    class_names = [train_dataset.classes[k] for k in class_counts.keys()]
+    class_counts = list(class_counts.values())
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(class_names, class_counts, color='skyblue')
+    plt.title('Class Distribution')
+    plt.xlabel('Class')
+    plt.ylabel('Count')
+    plt.xticks(rotation=90)
+    plt.savefig('dataset_distribution.png')
+    plt.show()
+    plt.close()
+
+    total_images = sum(class_counts)
+    max_images_in_a_class = max(class_counts)
+    balancing_efficiency = 100 * (total_images / (len(class_counts) * max_images_in_a_class))
+
+    print(f"Distribution of images: {dict(zip(class_names, class_counts))}")
+    print(f"Balancing Efficiency: {balancing_efficiency:.2f}%")
+    return balancing_efficiency, plt
+
     
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-dataset','--dataset_folder', help='Path to the dataset folder', required=False,default="/home/edramos/Documents/MLOPS/ImageClassification-MFG/things-8")
+    parser.add_argument('-dataset','--dataset_folder', help='Path to the dataset folder', required=False,default="/home/edramos/Documents/MLOPS/SMAP-Recognition/CustomDataset, type=str")
     parser.add_argument('-subset_ratio','--subset_ratio', help='Fraction of data to use in the subset for each class', required=False, default=0.99, type=float)
     parser.add_argument('-lr','--lr', help='Learning rate for the optimizer', required=False, default=0.0001,type=float)
     parser.add_argument('-batchsize','--batch_size', help='Batch size for training', required=False, default=32, type=int)
     parser.add_argument('-epochs','--epochs', help='Number of epochs for training', required=False, default=10, type=int)
     parser.add_argument('-dataset_multiplier','--dataset_multiplier', help='Mmultiplier of dataset to use', required=False, default=1, type=int)    
     parser.add_argument('-model','--model', help='Model to use', required=False, default="convnextv2_tiny")
+    parser.add_argument('-n_splits','--n_splits', help='Number of splits for KFold', required=False, default=5, type=int)
+    parser.add_argument('-image_size','--image_size', help='Image size', required=False, default=(224,224), type=tuple)
+    parser.add_argument('-project_name','--project_name', help='Project Name', required=False, default="SmartAssemblyProcess")
     args = parser.parse_args()
     dataset_folder = args.dataset_folder
     subset_ratio = args.subset_ratio

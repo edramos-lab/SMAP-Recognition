@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/495127363287546636/d5d79237a8ea4dd7b00ffcf321384ed4/artifacts
+end_time: 1710812359312
+entry_point_name: ''
+experiment_id: '495127363287546636'
+lifecycle_stage: active
+run_id: d5d79237a8ea4dd7b00ffcf321384ed4
+run_name: debonair-fish-73
+run_uuid: d5d79237a8ea4dd7b00ffcf321384ed4
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1710812192756
+status: 4
+tags: []
+user_id: edramos
