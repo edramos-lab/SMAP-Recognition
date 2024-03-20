@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/495127363287546636/8710bc373e04439b8907152b4731e31b/artifacts
+end_time: 1710815731690
+entry_point_name: ''
+experiment_id: '495127363287546636'
+lifecycle_stage: active
+run_id: 8710bc373e04439b8907152b4731e31b
+run_name: stately-grub-553
+run_uuid: 8710bc373e04439b8907152b4731e31b
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1710814465202
+status: 3
+tags: []
+user_id: edramos

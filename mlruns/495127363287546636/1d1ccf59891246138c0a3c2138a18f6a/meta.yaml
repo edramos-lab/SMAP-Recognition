@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/495127363287546636/1d1ccf59891246138c0a3c2138a18f6a/artifacts
+end_time: 1710816991070
+entry_point_name: ''
+experiment_id: '495127363287546636'
+lifecycle_stage: active
+run_id: 1d1ccf59891246138c0a3c2138a18f6a
+run_name: abrasive-sponge-172
+run_uuid: 1d1ccf59891246138c0a3c2138a18f6a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1710815732521
+status: 3
+tags: []
+user_id: edramos

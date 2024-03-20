@@ -953,8 +953,8 @@ def distribution(dataset_folder):
     plt.ylabel('Count')
     plt.xticks(rotation=90)
     plt.savefig('dataset_distribution.png')
-    plt.show()
-    plt.close()
+    #plt.show()
+    #plt.close()
 
     total_images = sum(class_counts)
     max_images_in_a_class = max(class_counts)

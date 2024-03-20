@@ -9,9 +9,10 @@ import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-model_path','--model_path', help='Path to the dataset folder', required=False,default="/home/edramos/Documents/MLOPS/model_20240312030133/content/model_20240312030133/data/model.pth")
-
+    parser.add_argument('-camera', help='Device to run the model', required=False,default=0, type=int)
     args = parser.parse_args()
     model_path = args.model_path
+    camera = args.camera
 
     print(f"model_path: {model_path}, type: {type(model_path)}")
     # Check if GPU is available
@@ -24,7 +25,7 @@ if __name__ == '__main__':
     model.eval()
 
     # Set up the webcam
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)  # Change the argument to 1 for the second USB camera
 
 
     font                   = cv2.FONT_HERSHEY_SIMPLEX
