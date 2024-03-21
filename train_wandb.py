@@ -26,7 +26,6 @@ import seaborn as sns
 import argparse
 import torch
 import mlflow
-import mlflow
 from mlflow.tracking import MlflowClient
 import mlflow.pytorch
 import mlflow.sklearn
@@ -226,8 +225,8 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
 
     # Load datasets
     dataset = ImageFolder(os.path.join(dataset_folder, 'train'), transform=data_transforms)
-    class_counts = dict(sorted(Counter(train_dataset.targets).items()))
-    class_names = [train_dataset.classes[k] for k in class_counts.keys()]
+    class_counts = dict(sorted(Counter(dataset.targets).items()))
+    class_names = [dataset.classes[k] for k in class_counts.keys()]
     dataclasses = ImageFolder(dataset_folder + "/train")
     image_list = glob.glob(dataset_folder + "/train" + '/*/*.jpg')
     plot_scatter_dataset(image_list)
