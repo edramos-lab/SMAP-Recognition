@@ -721,7 +721,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     # Convert lists to NumPy arrays for sklearn metrics
     true_labels = np.array(true_labels)
     predicted_labels = np.array(predicted_labels)
-    class_names = test_loader.dataset.classes
+    class_names = test_loader.dataset.dataset.classes
     # Calculate metrics
     confusion = confusion_matrix(true_labels, predicted_labels)
     test_accuracy = 100 * accuracy_score(true_labels, predicted_labels)
