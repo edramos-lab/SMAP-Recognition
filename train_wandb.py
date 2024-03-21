@@ -42,7 +42,7 @@ import csv
 import cv2
 import wandb
 
-class_names = [f'step{i}' for i in range(1, 39)]
+class_names = [f'class{i}' for i in range(1, 39)]
 
 def plot_scatter_dataset(image_list):
 
