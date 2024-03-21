@@ -950,7 +950,7 @@ def distribution(dataset_folder):
     plt.figure(figsize=(18, 12))
     plt.bar(class_names, class_counts, color='skyblue')
     plt.title('Class Distribution')
-    plt.xlabel('Class')
+    plt.xlabel('Class', fontsize=16)  # Increase the fontsize to 14 (or any desired value)
     plt.ylabel('Count')
     plt.xticks(rotation=90)
     plt.savefig('dataset_distribution.png')
