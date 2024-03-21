@@ -154,7 +154,7 @@ def preprocess_and_load_data(dataset_multiplier,dataset_folder, image_size, batc
     print("Train Dataloader Size:", len(train_dataloader.dataset))
 
     import matplotlib.pyplot as plt
-    class_names = [f'step{i}' for i in range(1, 39)]
+    class_names = [f'class{i}' for i in range(1, 39)]
 
 
     # Get random images and their labels
@@ -261,7 +261,7 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
 
     print("Train Dataloader Size:", len(train_dataloader.dataset))
 
-    class_names = [f'step{i}' for i in range(1, 39)]
+    class_names = [f'class{i}' for i in range(1, 39)]
 
     # Get random images and their labels
     random_images, random_labels = get_random_samples(test_dataloader, 16)
