@@ -124,7 +124,7 @@ def preprocess_and_load_data(dataset_multiplier,dataset_folder, image_size, batc
     dataclasses = ImageFolder(dataset_folder+"/train")
     image_list = glob.glob(dataset_folder+"/train"+'/*/*.jpg')
     plot_scatter_dataset(image_list)
-    mlflow.log_artifact("scatter_plot.png")
+    #mlflow.log_artifact("scatter_plot.png")
 
     num_classes = len(dataclasses.classes)
     print("Num classes: ",num_classes)
@@ -163,7 +163,7 @@ def preprocess_and_load_data(dataset_multiplier,dataset_folder, image_size, batc
 
     # Show the images
     show_images(random_images, random_labels)
-    mlflow.log_artifact("random_images.png")
+    #mlflow.log_artifact("random_images.png")
 
 
     indices = []
