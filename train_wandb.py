@@ -42,7 +42,7 @@ import csv
 import cv2
 import wandb
 
-class_names = [f'class{i}' for i in range(1, 39)]
+#class_names = [f'class{i}' for i in range(1, 39)]
 
 def plot_scatter_dataset(image_list):
 
@@ -73,7 +73,7 @@ def show_images(images, labels, ncols=4):
     for i, (image, label) in enumerate(zip(images, labels)):
         img = image.permute(1, 2, 0).numpy()
         axs[i].imshow(img)
-        axs[i].set_title(class_names[label])
+        axs[i].set_title(labels[label])
         axs[i].axis('off')
     for ax in axs[i+1:]:
         ax.axis('off')
@@ -120,6 +120,7 @@ def preprocess_and_load_data(dataset_multiplier,dataset_folder, image_size, batc
 
     # Load datasets
     dataset = ImageFolder(os.path.join(dataset_folder, 'train'), transform=data_transforms)
+    class_names = [dataset.classes[k] for k in class_counts.keys()]
     dataclasses = ImageFolder(dataset_folder+"/train")
     image_list = glob.glob(dataset_folder+"/train"+'/*/*.jpg')
     plot_scatter_dataset(image_list)
@@ -154,7 +155,7 @@ def preprocess_and_load_data(dataset_multiplier,dataset_folder, image_size, batc
     print("Train Dataloader Size:", len(train_dataloader.dataset))
 
     import matplotlib.pyplot as plt
-    class_names = [f'class{i}' for i in range(1, 39)]
+   
 
 
     # Get random images and their labels
@@ -261,8 +262,7 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
 
     print("Train Dataloader Size:", len(train_dataloader.dataset))
 
-    class_names = [f'class{i}' for i in range(1, 39)]
-
+   
     # Get random images and their labels
     random_images, random_labels = get_random_samples(test_dataloader, 16)
 
@@ -721,7 +721,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     # Convert lists to NumPy arrays for sklearn metrics
     true_labels = np.array(true_labels)
     predicted_labels = np.array(predicted_labels)
-
+    class_names = test_loader.dataset.classes
     # Calculate metrics
     confusion = confusion_matrix(true_labels, predicted_labels)
     test_accuracy = 100 * accuracy_score(true_labels, predicted_labels)
@@ -738,7 +738,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     wandb.log({"Matthews Correlation Coefficient": matthews_corr})
 
     # Calculate the confusion matrix
-    confusion = confusion_matrix(true_labels, predicted_labels)
+    confusion = confusion_matrix(true_labels, predicted_labels,labels=class_names)
 
     # Convert the confusion matrix to a DataFrame
     confusion_df = pd.DataFrame(confusion)
@@ -756,7 +756,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
 
 
     # Generate the confusion report
-    confusion_report = classification_report(true_labels, predicted_labels)
+    confusion_report = classification_report(true_labels, predicted_labels,labels=class_names)
 
     # Save the classification report to a text file
     report_filename = f"classification_report_{architecture}.txt"
