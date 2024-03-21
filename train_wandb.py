@@ -739,7 +739,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     wandb.log({"Matthews Correlation Coefficient": matthews_corr})
 
     # Calculate the confusion matrix
-    confusion = confusion_matrix(true_labels, predicted_labels,labels=class_names)
+    confusion = confusion_matrix(true_labels, predicted_labels)
 
     # Convert the confusion matrix to a DataFrame
     confusion_df = pd.DataFrame(confusion)
@@ -749,7 +749,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
 
     # Plot and save the confusion matrix as a .png file
     plt.figure(figsize=(8, 6))
-    sns.heatmap(confusion, annot=True, fmt="d", cmap="Blues")
+    sns.heatmap(confusion, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
     plt.title("Confusion Matrix")
     plt.xlabel("Predicted Label")
     plt.ylabel("True Label")
@@ -757,7 +757,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
 
 
     # Generate the confusion report
-    confusion_report = classification_report(true_labels, predicted_labels,labels=class_names)
+    confusion_report = classification_report(true_labels, predicted_labels)
 
     # Save the classification report to a text file
     report_filename = f"classification_report_{architecture}.txt"
