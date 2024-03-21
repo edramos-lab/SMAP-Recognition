@@ -3,7 +3,7 @@ import torch
 import torchvision.transforms as transforms
 import numpy as np
 import argparse
-
+import time
 
 
 if __name__ == '__main__':
@@ -13,7 +13,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
     model_path = args.model_path
     camera = args.camera
+    import subprocess
 
+    # Get the list of available USB cameras
+    usb_cameras = subprocess.check_output("ls /dev/video*", shell=True).decode().split()
+
+    # Print the available USB cameras
+    print("Available USB Cameras:")
+    for camera in usb_cameras:
+        print(camera)
     print(f"model_path: {model_path}, type: {type(model_path)}")
     # Check if GPU is available
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -25,7 +33,9 @@ if __name__ == '__main__':
     model.eval()
 
     # Set up the webcam
-    cap = cv2.VideoCapture(1)  # Change the argument to 1 for the second USB camera
+    cap = cv2.VideoCapture(0)  # Change the argument to 1 for the second USB camera
+
+    time.sleep(1)  # Add a delay of 1 second
 
 
     font                   = cv2.FONT_HERSHEY_SIMPLEX

@@ -986,12 +986,15 @@ if __name__ == '__main__':
     batch_size = args.batch_size
     epochs = args.epochs
     model = args.model
+    project_name = args.project_name
+    n_splits = args.n_splits
     print(f"lr: {lr}, type: {type(lr)}")
     print(f"batch_size: {batch_size}, type: {type(batch_size)}")
     print(f"epochs: {args.epochs}, type: {type(args.epochs)}")
     print(f"dataset_multiplier: {args.dataset_multiplier}, type: {type(args.dataset_multiplier)}")
     print(f"subset_ratio: {args.subset_ratio}, type: {type(args.subset_ratio)}")
     print(f"model: {args.model}, type: {type(args.model)}")
+    print(f"project_name: {args.project_name}, type: {type(args.project_name)}")
 
 
 
@@ -999,15 +1002,15 @@ if __name__ == '__main__':
     
     print(f"dataset_folder: {dataset_folder}, type: {type(dataset_folder)}")  
     # Set up default values
-    n_splits = 5
+    #n_splits = 5
     #epochs = 10
     #model = "convnextv2_tiny"#"efficientnet_b0"
     #lr = 0.0001
     #batch_size = 8
     
-    project_name = "SmartAssemblyProcess"
+    #project_name = "SmartAssemblyProcess"
     #dataset_folder = "/home/edramos/Documents/MLOPS/SmartAssemblyProcessRecognition/CustomDataset/"
-    wandb.init(project="SmartAssemblyProcess")
+    wandb.init(project=project_name)
 
 
     #dataset_folder = '/home/edramos/Documents/MLOPS/ImageClassification-MFG/nigel-chassises-1'
