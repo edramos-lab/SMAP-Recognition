@@ -779,7 +779,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     model_name = f"model_{timestamp}"
     wandb.save(model_name)
-    roc_fig = auroc2(model, test_loader, num_classes)
+    roc_fig = auroc2(model, test_loader, num_classes,class_names)
 
     wandb.save("roc-auc.png")
     wandb.log({"ROC AUC": wandb.Image("roc-auc.png")})
@@ -854,7 +854,7 @@ def auroc(model, test_loader, num_classes):
     plt.savefig('roc-auc.png')
     return plt
 
-def auroc2(model, test_loader, num_classes):
+def auroc2(model, test_loader, num_classes,class_names):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
     model.eval()
@@ -924,7 +924,7 @@ def auroc2(model, test_loader, num_classes):
     plt.plot(fpr["micro"], tpr["micro"], label='micro-average ROC curve (area = {0:0.2f})'.format(roc_auc["micro"]), color='deeppink', linestyle=':', linewidth=2)
     plt.plot(fpr["macro"], tpr["macro"], label='macro-average ROC curve (area = {0:0.2f})'.format(roc_auc["macro"]), color='navy', linestyle=':', linewidth=2)
     for i in range(num_classes):
-        plt.plot(fpr[i], tpr[i], label='ROC curve of class {0} (area = {1:0.2f})'.format(i, roc_auc[i]))
+        plt.plot(fpr[i], tpr[i], label='ROC curve of '+ class_names[i] + 'area = {1:0.2f})'.format(i, roc_auc[i]))
     plt.plot([0, 1], [0, 1], 'k--', linewidth=2)
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])
