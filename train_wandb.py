@@ -748,7 +748,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     confusion_df.to_csv("confusion_matrix.csv", index=False)
 
     # Plot and save the confusion matrix as a .png file
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(16, 14))
     sns.heatmap(confusion, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
     plt.title("Confusion Matrix")
     plt.xlabel("Predicted Label")
@@ -836,7 +836,7 @@ def auroc(model, test_loader, num_classes):
     local_roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
 
     # Plot ROC curve
-    plt.figure(figsize=(12, 10))
+    plt.figure(figsize=(16, 14))
     plt.plot(fpr["micro"], tpr["micro"], label='micro-average ROC curve (area = {0:0.2f})'.format(local_roc_auc["micro"]), color='deeppink', linestyle=':', linewidth=2)
     plt.plot(fpr["macro"], tpr["macro"], label='macro-average ROC curve (area = {0:0.2f})'.format(local_roc_auc["macro"]), color='navy', linestyle=':', linewidth=2)
     for i in range(num_classes):
@@ -924,7 +924,7 @@ def auroc2(model, test_loader, num_classes,class_names):
     plt.plot(fpr["micro"], tpr["micro"], label='micro-average ROC curve (area = {0:0.2f})'.format(roc_auc["micro"]), color='deeppink', linestyle=':', linewidth=2)
     plt.plot(fpr["macro"], tpr["macro"], label='macro-average ROC curve (area = {0:0.2f})'.format(roc_auc["macro"]), color='navy', linestyle=':', linewidth=2)
     for i in range(num_classes):
-        plt.plot(fpr[i], tpr[i], label='ROC curve of '+ class_names[i] + 'area = {1:0.2f})'.format(i, roc_auc[i]))
+        plt.plot(fpr[i], tpr[i], label='ROC curve of '+ class_names[i] + ' area = {1:0.2f})'.format(i, roc_auc[i]))
     plt.plot([0, 1], [0, 1], 'k--', linewidth=2)
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])
