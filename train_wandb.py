@@ -226,6 +226,8 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
 
     # Load datasets
     dataset = ImageFolder(os.path.join(dataset_folder, 'train'), transform=data_transforms)
+    class_counts = dict(sorted(Counter(train_dataset.targets).items()))
+    class_names = [train_dataset.classes[k] for k in class_counts.keys()]
     dataclasses = ImageFolder(dataset_folder + "/train")
     image_list = glob.glob(dataset_folder + "/train" + '/*/*.jpg')
     plot_scatter_dataset(image_list)
@@ -300,7 +302,7 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
         'val': val_dataloader,
         'test': test_dataloader,
         'subset': subset_loader
-    }, subset_dataset, balancing_efficiency, num_classes, total_samples, train_size, test_size
+    }, subset_dataset, balancing_efficiency, num_classes, total_samples, train_size, test_size,class_names
 
 def preprocess_and_load_data2(dataset_folder, image_size, batch_size, subset_ratio):
     """
@@ -691,7 +693,7 @@ def test_model_mlflow(model, test_loader,architecture, optimizer, scheduler, bat
     torch.cuda.empty_cache()
 
     mlflow.end_run()
-def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, batch_size, image_size):
+def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, batch_size, image_size,class_names):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     test_accuracy = 0  # Placeholder for accuracy calculation
@@ -721,16 +723,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     # Convert lists to NumPy arrays for sklearn metrics
     true_labels = np.array(true_labels)
     predicted_labels = np.array(predicted_labels)
-    class_names = []
 
-    # Iterate over each dataset in ConcatDataset
-    for dataset in test_loader.dataset.datasets:
-        # Check if the dataset has the classes attribute
-        if hasattr(dataset, 'classes'):
-            class_names.extend(dataset.classes)
-
-    # Remove duplicates and sort
-    class_names = sorted(set(class_names))
     # Calculate metrics
     confusion = confusion_matrix(true_labels, predicted_labels)
     test_accuracy = 100 * accuracy_score(true_labels, predicted_labels)
@@ -1026,7 +1019,7 @@ if __name__ == '__main__':
     if dataset_folder == None:
         dataset_folder = '/home/edramos/Documents/MLOPS/SmartAssemblyProcessRecognition/CustomDataset/'
     image_size = (224, 224)  # Example image size
-    data_loaders, subset_dataset, balancing_efficiency, num_classes,total_samples,train_size,test_size = preprocess_and_load_data_wandb(dataset_multiplier,dataset_folder, image_size, batch_size, subset_ratio)
+    data_loaders, subset_dataset, balancing_efficiency, num_classes,total_samples,train_size,test_size,class_names = preprocess_and_load_data_wandb(dataset_multiplier,dataset_folder, image_size, batch_size, subset_ratio)
 
     # Example of how to use the data_loaders and subset_dataset
     print(f"Number of classes: {num_classes}")
@@ -1063,7 +1056,7 @@ if __name__ == '__main__':
     
     test_loader = data_loaders['test']
 
-    test_model_wandb(model, test_loader,architecture, optimizer, scheduler, batch_size, image_size)
+    test_model_wandb(model, test_loader,architecture, optimizer, scheduler, batch_size, image_size,class_names)
 
     
     
