@@ -947,7 +947,7 @@ def distribution(dataset_folder):
     class_names = [train_dataset.classes[k] for k in class_counts.keys()]
     class_counts = list(class_counts.values())
 
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(18, 12))
     plt.bar(class_names, class_counts, color='skyblue')
     plt.title('Class Distribution')
     plt.xlabel('Class')
