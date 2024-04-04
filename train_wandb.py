@@ -90,6 +90,7 @@ def get_random_samples(dataloader, num_samples=16):
         images.append(image)
         labels.append(label)
     return images, labels
+    
 def preprocess_and_load_data(dataset_multiplier,dataset_folder, image_size, batch_size, subset_ratio):
     """
     Preprocesses the dataset, loads it into DataLoader, and creates a balanced subset of the training dataset.
@@ -227,6 +228,7 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
     dataset = ImageFolder(os.path.join(dataset_folder, 'train'), transform=data_transforms)
     class_counts = dict(sorted(Counter(dataset.targets).items()))
     class_names = [dataset.classes[k] for k in class_counts.keys()]
+    print("Class names: ", class_names)
     dataclasses = ImageFolder(dataset_folder + "/train")
     image_list = glob.glob(dataset_folder + "/train" + '/*/*.jpg')
     plot_scatter_dataset(image_list)
@@ -302,7 +304,31 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
         'test': test_dataloader,
         'subset': subset_loader
     }, subset_dataset, balancing_efficiency, num_classes, total_samples, train_size, test_size,class_names
-
+def plot_one_image_per_class(dataloader, class_names):
+        # Get the class labels from the dataloader
+        class_labels = dataloader.dataset.classes
+        
+        # Create a dictionary to store one image per class
+        images_per_class = {}
+        
+        # Iterate over the dataloader to get one image per class
+        for images, labels in dataloader:
+            for image, label in zip(images, labels):
+                # Check if the class label is already in the dictionary
+                if class_labels[label] not in images_per_class:
+                    # Store the image for the class label
+                    images_per_class[class_labels[label]] = image
+                    break
+        
+        # Plot one image per class
+        fig, axs = plt.subplots(1, len(class_labels), figsize=(12, 12))
+        for i, (class_label, image) in enumerate(images_per_class.items()):
+            axs[i].imshow(image.permute(1, 2, 0))
+            axs[i].set_title(class_label)
+            axs[i].axis('off')
+        
+        plt.tight_layout()
+        plt.show()
 def preprocess_and_load_data2(dataset_folder, image_size, batch_size, subset_ratio):
     """
     Preprocesses the dataset, loads it into DataLoader, and creates a balanced subset of the training dataset.
@@ -950,7 +976,7 @@ def distribution(dataset_folder):
     plt.figure(figsize=(18, 12))
     plt.bar(class_names, class_counts, color='skyblue')
     plt.title('Class Distribution')
-    plt.xlabel('Class', fontsize=16)  # Increase the fontsize to 14 (or any desired value)
+    plt.xlabel('Class', fontsize=18)  # Increase the fontsize to 14 (or any desired value)
     plt.ylabel('Count')
     plt.xticks(rotation=90)
     plt.savefig('dataset_distribution.png')
