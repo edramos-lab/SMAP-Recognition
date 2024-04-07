@@ -804,7 +804,9 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     # Save the model using wandb with a timestamp
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     model_name = f"model_{timestamp}"
-    wandb.save(model_name)
+    artifact = wandb.Artifact("trained_model", type="model")
+    artifact.add_file(model_name)
+    wandb.run.log_artifact(artifact)
     roc_fig = auroc2(model, test_loader, num_classes,class_names)
 
     wandb.save("roc-auc.png")
