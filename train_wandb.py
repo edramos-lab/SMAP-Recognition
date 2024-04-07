@@ -25,10 +25,10 @@ from sklearn.metrics import accuracy_score, auc, classification_report, confusio
 import seaborn as sns
 import argparse
 import torch
-import mlflow
+'''import mlflow
 from mlflow.tracking import MlflowClient
 import mlflow.pytorch
-import mlflow.sklearn
+import mlflow.sklearn'''
 import numpy as np
 from torch.utils.data import DataLoader, Subset
 from collections import Counter
@@ -329,6 +329,7 @@ def plot_one_image_per_class(dataloader, class_names):
         
         plt.tight_layout()
         plt.show()
+'''
 def preprocess_and_load_data2(dataset_folder, image_size, batch_size, subset_ratio):
     """
     Preprocesses the dataset, loads it into DataLoader, and creates a balanced subset of the training dataset.
@@ -401,7 +402,7 @@ def preprocess_and_load_data2(dataset_folder, image_size, batch_size, subset_rat
         'test': test_loader,
         'subset': subset_loader
     }, subset_dataset, balancing_efficiency, num_classes
-
+'''
 def train_model_kfold_wandb(subset_dataset, project_name,architecture,lr, n_splits,epochs, num_classes, batch_size):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
@@ -458,7 +459,7 @@ def train_model_kfold_wandb(subset_dataset, project_name,architecture,lr, n_spli
             })
         scheduler.step()
     return model, optimizer, scheduler
-
+'''
 def train_model_kfold_mlflow(subset_dataset, project_name, architecture, lr, n_splits, epochs, num_classes, batch_size):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
@@ -515,7 +516,7 @@ def train_model_kfold_mlflow(subset_dataset, project_name, architecture, lr, n_s
             scheduler.step()
 
     return model, optimizer, scheduler
-
+'''
 def test_model_wandb_old(model, test_loader, architecture, optimizer, scheduler, batch_size, image_size):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
@@ -620,7 +621,7 @@ def test_model_wandb_old(model, test_loader, architecture, optimizer, scheduler,
     wandb.finish()
 
 
-def test_model_mlflow(model, test_loader,architecture, optimizer, scheduler, batch_size, image_size):
+'''def test_model_mlflow(model, test_loader,architecture, optimizer, scheduler, batch_size, image_size):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     test_accuracy = 0  # Placeholder for accuracy calculation
@@ -718,6 +719,7 @@ def test_model_mlflow(model, test_loader,architecture, optimizer, scheduler, bat
     torch.cuda.empty_cache()
 
     mlflow.end_run()
+    '''
 def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, batch_size, image_size,class_names):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
