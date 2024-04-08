@@ -610,6 +610,7 @@ def test_model_wandb_old(model, test_loader, architecture, optimizer, scheduler,
     # Save the model locally
     local_model_path = "local_model_{}.pth".format(architecture)
     torch.save(model.state_dict(), local_model_path)
+    
 
     roc_fig = auroc(model, test_loader, num_classes)
     wandb.log({"ROC Curve": wandb.Image(roc_fig)})
@@ -803,12 +804,17 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     print("Test F1 Score: {:.6f}".format(test_f1_score))
     print("Matthews Correlation Coefficient: {:.6f}".format(matthews_corr))
 
-    # Save the model using wandb with a timestamp
-    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    model_name = f"model_{timestamp}"
-    artifact = wandb.Artifact("trained_model", type="model")
-    artifact.add_file(model_name)
-    wandb.run.log_artifact(artifact)
+    # Save the model using wandb
+    torch.save(model.state_dict(), './'+architecture+'_model.pth')
+    # Save as artifact for version control.
+    run = wandb.init(project=project_name)
+    artifact = wandb.Artifact('model', type='model')
+    artifact.add_file('./'+architecture+'_model.pth')
+    run.log_artifact(artifact)
+    run.finish()
+
+
+    #wandb.run.log_artifact(artifact)
     roc_fig = auroc2(model, test_loader, num_classes,class_names)
 
     wandb.save("roc-auc.png")
@@ -1085,7 +1091,7 @@ if __name__ == '__main__':
     
     test_loader = data_loaders['test']
 
-    test_model_wandb(model, test_loader,architecture, optimizer, scheduler, batch_size, image_size,class_names)
+    test_model_wandb(model,project_name, test_loader,architecture, optimizer, scheduler, batch_size, image_size,class_names)
 
     
     
