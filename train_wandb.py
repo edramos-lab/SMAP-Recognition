@@ -721,7 +721,7 @@ def test_model_wandb_old(model, test_loader, architecture, optimizer, scheduler,
 
     mlflow.end_run()
     '''
-def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, batch_size, image_size,class_names):
+def test_model_wandb(model,project_name, test_loader, architecture, optimizer, scheduler, batch_size, image_size,class_names):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     test_accuracy = 0  # Placeholder for accuracy calculation
