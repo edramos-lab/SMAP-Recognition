@@ -805,13 +805,18 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     print("Matthews Correlation Coefficient: {:.6f}".format(matthews_corr))
 
     # Save the model using wandb
-    torch.save(model.state_dict(), './'+architecture+'_model.pth')
+    torch.save(model.state_dict(), 'model.pth')
     # Save as artifact for version control.
-    run = wandb.init(project=project_name)
-    artifact = wandb.Artifact('model', type='model')
-    artifact.add_file('./'+architecture+'_model.pth')
-    run.log_artifact(artifact)
-    run.finish()
+    # Create a wandb.Artifact for the model
+    artifact = wandb.Artifact("model", type="model")
+
+    # Add the model.pth file to the artifact
+    artifact.add_file("model.pth")
+
+    # Log the artifact to wandb
+    wandb.log_artifact(artifact)
+
+  
 
 
     #wandb.run.log_artifact(artifact)
@@ -824,6 +829,7 @@ def test_model_wandb(model, test_loader, architecture, optimizer, scheduler, bat
     # Clean up CUDA memory
     torch.cuda.reset_max_memory_allocated()
     torch.cuda.empty_cache()
+    wandb.finish()
 
 def auroc(model, test_loader, num_classes):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
