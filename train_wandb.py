@@ -25,10 +25,10 @@ from sklearn.metrics import accuracy_score, auc, classification_report, confusio
 import seaborn as sns
 import argparse
 import torch
-'''import mlflow
+import mlflow
 from mlflow.tracking import MlflowClient
 import mlflow.pytorch
-import mlflow.sklearn'''
+import mlflow.sklearn
 import numpy as np
 from torch.utils.data import DataLoader, Subset
 from collections import Counter
@@ -329,80 +329,7 @@ def plot_one_image_per_class(dataloader, class_names):
         
         plt.tight_layout()
         plt.show()
-'''
-def preprocess_and_load_data2(dataset_folder, image_size, batch_size, subset_ratio):
-    """
-    Preprocesses the dataset, loads it into DataLoader, and creates a balanced subset of the training dataset.
 
-    Args:
-    - dataset_folder: Path to the dataset folder.
-    - image_size: Tuple of ints for the size of the images (height, width).
-    - batch_size: Batch size for loading the data.
-    - subset_ratio: Fraction of data to use in the subset for each class.
-
-    Returns:
-    - A dictionary containing 'train', 'val', and 'test' DataLoaders.
-    - subset_dataset: A balanced subset of the training dataset.
-    - balancing_efficiency: The efficiency of balancing the dataset.
-    - num_classes: The number of classes in the dataset.
-    """
-    data_transforms = Compose([
-        Resize(image_size),
-        RandomHorizontalFlip(),
-        RandomVerticalFlip(),
-        RandomRotation(45),
-        ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
-        ToTensor(),
-        Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
-
-    # Load datasets
-    train_dataset = ImageFolder(os.path.join(dataset_folder, 'train'), transform=data_transforms)
-    val_dataset = ImageFolder(os.path.join(dataset_folder, 'valid'), transform=data_transforms)
-    test_dataset = ImageFolder(os.path.join(dataset_folder, 'test'), transform=data_transforms)
-       # Load datasets
-    
-    image_list = glob.glob(dataset_folder+"/train"+'/*/*.jpg')
-    plot_scatter_dataset(image_list)
-    wandb.log_artifact("scatter_plot.png")
-        # Get random images and their labels
-    random_images, random_labels = get_random_samples(test_dataset, 16)
-
-    # Show the images
-    show_images(random_images, random_labels)
-    mlflow.log_artifact("random_images.png")
-
-
-    num_classes = len(train_dataset.classes)
-
-    # Create DataLoaders
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
-
-    # Creating a balanced subset
-    indices = []
-    for class_index in range(num_classes):
-        class_indices = np.where(np.array(train_dataset.targets) == class_index)[0]
-        np.random.shuffle(class_indices)
-        subset_size = int(len(class_indices) * subset_ratio)
-        indices.extend(class_indices[:subset_size])
-
-    subset_dataset = Subset(train_dataset, indices)
-    subset_loader = DataLoader(subset_dataset, batch_size=batch_size, shuffle=True)
-
-    # Calculate balancing efficiency
-    class_counts = Counter([train_dataset.targets[i] for i in indices])
-    max_samples = max(class_counts.values())
-    balancing_efficiency = len(indices) / (num_classes * max_samples)
-    print(f"Balancing efficiency: {balancing_efficiency}")
-    return {
-        'train': train_loader,
-        'val': val_loader,
-        'test': test_loader,
-        'subset': subset_loader
-    }, subset_dataset, balancing_efficiency, num_classes
-'''
 def train_model_kfold_wandb(subset_dataset, project_name,architecture,lr, n_splits,epochs, num_classes, batch_size):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
@@ -459,7 +386,7 @@ def train_model_kfold_wandb(subset_dataset, project_name,architecture,lr, n_spli
             })
         scheduler.step()
     return model, optimizer, scheduler
-'''
+
 def train_model_kfold_mlflow(subset_dataset, project_name, architecture, lr, n_splits, epochs, num_classes, batch_size):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
@@ -516,113 +443,8 @@ def train_model_kfold_mlflow(subset_dataset, project_name, architecture, lr, n_s
             scheduler.step()
 
     return model, optimizer, scheduler
-'''
-def test_model_wandb_old(model, test_loader, architecture, optimizer, scheduler, batch_size, image_size):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.eval()
-    test_accuracy = 0  # Placeholder for accuracy calculation
 
-    # Initialize lists to store true and predicted labels
-    true_labels = []
-    predicted_labels = []
-
-    # Evaluate the model on the test split
-    with torch.no_grad():
-        correct = 0
-        total = 0
-        for images, labels in test_loader:
-            images = images.to(device)
-            labels = labels.to(device)
-
-            outputs = model(images)
-            _, preds = torch.max(outputs, 1)
-
-            correct += preds.eq(labels).sum().item()
-            total += len(labels)
-
-            # For detailed metrics
-            true_labels.extend(labels.cpu().numpy())
-            predicted_labels.extend(preds.cpu().numpy())
-
-    # Convert lists to NumPy arrays for sklearn metrics
-    true_labels = np.array(true_labels)
-    predicted_labels = np.array(predicted_labels)
-
-    # Calculate metrics
-    confusion = confusion_matrix(true_labels, predicted_labels)
-    test_accuracy = 100 * accuracy_score(true_labels, predicted_labels)
-    test_precision = 100 * precision_score(true_labels, predicted_labels, average='weighted')
-    test_recall = 100 * recall_score(true_labels, predicted_labels, average='weighted')
-    test_f1_score = 100 * f1_score(true_labels, predicted_labels, average='weighted')
-    matthews_corr = 100 * matthews_corrcoef(true_labels, predicted_labels)
-
-    # Log metrics
-
-    # Calculate the confusion matrix
-    confusion = confusion_matrix(true_labels, predicted_labels)
-
-    # Convert the confusion matrix to a DataFrame
-    confusion_df = pd.DataFrame(confusion)
-
-    # Save the DataFrame as a CSV file
-    confusion_df.to_csv("confusion_matrix.csv", index=False)
-
-    # Plot and save the confusion matrix as a .png file
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(confusion, annot=True, fmt="d", cmap="Blues")
-    plt.title("Confusion Matrix")
-    plt.xlabel("Predicted Label")
-    plt.ylabel("True Label")
-    plt.savefig("confusion_matrix.png")
-
-    # Generate the confusion report
-    confusion_report = classification_report(true_labels, predicted_labels)
-
-    # Save the classification report to a text file
-    report_filename = f"classification_report_{architecture}.txt"
-    with open(report_filename, "w") as report_file:
-        report_file.write(confusion_report)
-
-    wandb.log({
-        "Test Accuracy": test_accuracy,
-        "Test Precision": test_precision,
-        "Test Recall": test_recall,
-        "Test F1 Score": test_f1_score,
-        "Matthews Correlation Coefficient": matthews_corr,
-        "Confusion Matrix": wandb.Image("confusion_matrix.png"),
-        "Confusion Report": confusion_report
-    })
-
-    print("Test accuracy: %.3f" % test_accuracy)
-    print("Confusion Matrix:\n", confusion)
-    print("Test Precision: {:.6f}".format(test_precision))
-    print("Test Recall: {:.6f}".format(test_recall))
-    print("Test F1 Score: {:.6f}".format(test_f1_score))
-    print("Matthews Correlation Coefficient: {:.6f}".format(matthews_corr))
-
-    # Save the model to WandB
-    model_path = "model_{}.pth".format(architecture)
-    torch.save(model.state_dict(), model_path)
-    artifact = wandb.Artifact(architecture, type="model")
-    artifact.add_file(model_path)
-    wandb.log_artifact(artifact)
-
-    # Save the model locally
-    local_model_path = "local_model_{}.pth".format(architecture)
-    torch.save(model.state_dict(), local_model_path)
-    
-
-    roc_fig = auroc(model, test_loader, num_classes)
-    wandb.log({"ROC Curve": wandb.Image(roc_fig)})
-
-    # Clean up CUDA memory
-    torch.cuda.reset_max_memory_allocated()
-    torch.cuda.empty_cache()
-
-    wandb.finish()
-
-
-'''def test_model_mlflow(model, test_loader,architecture, optimizer, scheduler, batch_size, image_size):
+def test_model_mlflow(model, test_loader,architecture, optimizer, scheduler, batch_size, image_size):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     test_accuracy = 0  # Placeholder for accuracy calculation
@@ -720,7 +542,7 @@ def test_model_wandb_old(model, test_loader, architecture, optimizer, scheduler,
     torch.cuda.empty_cache()
 
     mlflow.end_run()
-    '''
+    
 def test_model_wandb(model,project_name, test_loader, architecture, optimizer, scheduler, batch_size, image_size,class_names):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
@@ -1044,19 +866,11 @@ if __name__ == '__main__':
 
     
     print(f"dataset_folder: {dataset_folder}, type: {type(dataset_folder)}")  
-    # Set up default values
-    #n_splits = 5
-    #epochs = 10
-    #model = "convnextv2_tiny"#"efficientnet_b0"
-    #lr = 0.0001
-    #batch_size = 8
-    
-    #project_name = "SmartAssemblyProcess"
-    #dataset_folder = "/home/edramos/Documents/MLOPS/SmartAssemblyProcessRecognition/CustomDataset/"
+
     wandb.init(project=project_name)
 
 
-    #dataset_folder = '/home/edramos/Documents/MLOPS/ImageClassification-MFG/nigel-chassises-1'
+
     if dataset_folder == None:
         dataset_folder = '/home/edramos/Documents/MLOPS/SmartAssemblyProcessRecognition/CustomDataset/'
     image_size = (224, 224)  # Example image size
@@ -1073,7 +887,6 @@ if __name__ == '__main__':
         print(f'Subset Batch size: {len(images)}')
         break  # Just to show the first batch from the subset
 
-    #architectures = ["efficientnet_b0", "inception_v4", "swin_tiny_patch4_window7_224", "convnextv2_tiny", "xception41", "deit3_base_patch16_224"]
     architecture= model
         
     
