@@ -301,6 +301,7 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
     train_size=len(train_dataloader.dataset)
     val_size=len(val_dataloader.dataset)
     test_size=len(test_dataloader.dataset)
+    total_samples=train_size+val_size+test_size
     print("Train Dataloader Size:", len(train_dataloader.dataset))
     print("val Dataloader Size:", len(val_dataloader.dataset))
     print("test Dataloader Size:", len(test_dataloader.dataset))
