@@ -290,6 +290,10 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
     mapped_indices = [train_dataset.indices.index(i) for i in subset_indices]
 
     subset_dataset = Subset(train_dataset, mapped_indices)
+    total_samples=len(subset_dataset)
+    train_size = int(0.8 * total_samples)
+    val_size = int(0.1 * total_samples)
+    test_size = total_samples - train_size - val_size
     # Split the dataset into training, validation, and testing
     train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(subset_dataset,
                                                                              [train_size, val_size, test_size])
