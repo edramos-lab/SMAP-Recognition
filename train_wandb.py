@@ -246,10 +246,10 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
     val_size = int(0.1 * total_samples)
     test_size = total_samples - train_size - val_size
 
-    print("Total Samples:", total_samples)
-    print("Train Size:", train_size)
-    print("Validation Size:", val_size)
-    print("Test Size:", test_size)
+    print("Total Original Samples:", total_samples)
+    print("Train Original Size:", train_size)
+    print("Validation Original Size:", val_size)
+    print("Test Original Size:", test_size)
 
     # Split the dataset into training, validation, and testing
     train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(expanded_dataset,
@@ -290,7 +290,20 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
     mapped_indices = [train_dataset.indices.index(i) for i in subset_indices]
 
     subset_dataset = Subset(train_dataset, mapped_indices)
-    subset_loader = DataLoader(subset_dataset, batch_size=batch_size, shuffle=True)
+    # Split the dataset into training, validation, and testing
+    train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(subset_dataset,
+                                                                             [train_size, val_size, test_size])
+    subset_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        # Modify your dataloaders as before
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+    train_size=len(train_dataloader.dataset)
+    val_size=len(val_dataloader.dataset)
+    test_size=len(test_dataloader.dataset)
+    print("Train Dataloader Size:", len(train_dataloader.dataset))
+    print("val Dataloader Size:", len(val_dataloader.dataset))
+    print("test Dataloader Size:", len(test_dataloader.dataset))
 
     # Calculate balancing efficiency using the subset's indices in the context of the original dataset
     class_counts = Counter([original_targets[i] for i in subset_indices])
@@ -349,7 +362,7 @@ def train_model_kfold_wandb(subset_dataset, project_name,architecture,lr, n_spli
         val_sampler = SubsetRandomSampler(val_idx)
         train_loader = DataLoader(subset_dataset, batch_size=batch_size, sampler=train_sampler)
         val_loader = DataLoader(subset_dataset, batch_size=batch_size, sampler=val_sampler)
-
+        print("Train Loader Size:", len(train_loader.dataset))
         for epoch in range(epochs):
             model.train()
             train_loss, train_correct, train_total = 0, 0, 0
@@ -385,6 +398,7 @@ def train_model_kfold_wandb(subset_dataset, project_name,architecture,lr, n_spli
                 "val_accuracy": 100.0 * val_correct / val_total,
             })
         scheduler.step()
+    
     return model, optimizer, scheduler
 
 '''
@@ -886,8 +900,11 @@ if __name__ == '__main__':
         print(f'Train Batch size: {len(images)}')
         break  # Just to show the first batch, you can remove this break to iterate through the dataset
 
-    for images, labels in data_loaders['subset']:
+    for images, labels in data_loaders['val']:
         print(f'Subset Batch size: {len(images)}')
+        break  # Just to show the first batch from the subset
+    for images, labels in data_loaders['test']:
+        print(f'Test Batch size: {len(images)}')
         break  # Just to show the first batch from the subset
 
     architecture= model
@@ -910,6 +927,7 @@ if __name__ == '__main__':
 
     
     model, optimizer, scheduler =train_model_kfold_wandb(subset_dataset, project_name,architecture, lr,n_splits,epochs, num_classes, batch_size)
+    wandb.log({})
     
     test_loader = data_loaders['test']
 
