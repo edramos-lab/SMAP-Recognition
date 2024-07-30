@@ -1,5 +1,6 @@
 
 from itertools import cycle
+import shutil
 from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
@@ -132,7 +133,7 @@ def preprocess_and_load_data(dataset_multiplier,dataset_folder, image_size, batc
     
     # Calculate the sizes for training, validation, and testing
     total_samples = len(expanded_dataset)
-    train_size = int(0.8 * total_samples)
+    train_size = int(0.9 * total_samples)
     val_size = int(0.1 * total_samples)
     test_size = total_samples - train_size - val_size
 
@@ -224,8 +225,19 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
         Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
+    data_transforms_test = Compose([
+        Resize(image_size),
+        ToTensor(),
+        # Updated Normalize values (example only; calculate based on your dataset)
+        Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+
     # Load datasets
+
     dataset = ImageFolder(os.path.join(dataset_folder, 'train'), transform=data_transforms)
+    # Load the test dataset from the 'test' folder
+    test_dataset = ImageFolder(os.path.join(dataset_folder, 'test'), transform=data_transforms_test)
+
     class_counts = dict(sorted(Counter(dataset.targets).items()))
     class_names = [dataset.classes[k] for k in class_counts.keys()]
     print("Class names: ", class_names)
@@ -242,28 +254,26 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
 
     # Calculate the sizes for training, validation, and testing
     total_samples = len(expanded_dataset)
-    train_size = int(0.8 * total_samples)
+    train_size = int(total_samples)
     val_size = int(0.1 * total_samples)
     test_size = total_samples - train_size - val_size
 
     print("Total Original Samples:", total_samples)
-    print("Train Original Size:", train_size)
-    print("Validation Original Size:", val_size)
-    print("Test Original Size:", test_size)
+
 
     # Split the dataset into training, validation, and testing
-    train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(expanded_dataset,
-                                                                             [train_size, val_size, test_size])
+    train_dataset = expanded_dataset
 
     # Assuming the original dataset `expanded_dataset` has a 'targets' attribute
     original_targets = dataset.targets  # Access targets from the original dataset
 
     # Modify your dataloaders as before
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
+
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
-    print("Train Dataloader Size:", len(train_dataloader.dataset))
+    print("Original Train dataset Size:", len(train_dataloader.dataset))
+    print("Test Dataloader Size:", len(test_dataloader.dataset))
 
    
     # Get random images and their labels
@@ -291,23 +301,13 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
 
     subset_dataset = Subset(train_dataset, mapped_indices)
     total_samples=len(subset_dataset)
-    train_size = int(0.8 * total_samples)
-    val_size = int(0.1 * total_samples)
-    test_size = total_samples - train_size - val_size
-    # Split the dataset into training, validation, and testing
-    train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(subset_dataset,
-                                                                             [train_size, val_size, test_size])
-    subset_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        # Modify your dataloaders as before
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
-    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+   
     train_size=len(train_dataloader.dataset)
-    val_size=len(val_dataloader.dataset)
+
     test_size=len(test_dataloader.dataset)
-    total_samples=train_size+val_size+test_size
-    print("Train Dataloader Size:", len(train_dataloader.dataset))
-    print("val Dataloader Size:", len(val_dataloader.dataset))
+  
+    print("Subset Train Dataloader Size:", len(train_dataloader.dataset))
+
     print("test Dataloader Size:", len(test_dataloader.dataset))
 
     # Calculate balancing efficiency using the subset's indices in the context of the original dataset
@@ -318,10 +318,9 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
 
     return {
         'train': train_dataloader,
-        'val': val_dataloader,
         'test': test_dataloader,
-        'subset': subset_loader
     }, subset_dataset, balancing_efficiency, num_classes, total_samples, train_size, test_size,class_names
+
 def plot_one_image_per_class(dataloader, class_names):
         # Get the class labels from the dataloader
         class_labels = dataloader.dataset.classes
@@ -826,6 +825,10 @@ import os
 import matplotlib.pyplot as plt
 from torchvision.datasets import ImageFolder
 from collections import Counter
+import os
+import random
+import shutil
+import random
 
 def distribution(dataset_folder):
     train_dataset = ImageFolder(os.path.join(dataset_folder, "train"))
@@ -898,6 +901,7 @@ if __name__ == '__main__':
     image_size = (224, 224)  # Example image size
     data_loaders, subset_dataset, balancing_efficiency, num_classes,total_samples,train_size,test_size,class_names = preprocess_and_load_data_wandb(dataset_multiplier,dataset_folder, image_size, batch_size, subset_ratio)
 
+  
     # Example of how to use the data_loaders and subset_dataset
     print(f"Number of classes: {num_classes}")
     print(f"Balancing Efficiency: {balancing_efficiency}")
@@ -937,6 +941,6 @@ if __name__ == '__main__':
     test_loader = data_loaders['test']
 
     test_model_wandb(model,project_name, test_loader,architecture, optimizer, scheduler, batch_size, image_size,class_names)
-
+   
     
     
