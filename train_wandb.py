@@ -280,10 +280,10 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
         subset_size = int(len(class_indices) * subset_ratio)
         subset_indices.extend(class_indices[:subset_size])
 
-    subset_dataset = Subset(dataset, subset_indices)
+    subset_dataset = Subset(expanded_dataset, subset_indices)
 
     total_samples = len(subset_dataset)
-    train_size = len(train_dataloader.dataset)
+    train_size = total_samples#len(train_dataloader.dataset)
     test_size = len(test_dataloader.dataset)
 
     print("Subset Train Dataloader Size:", len(train_dataloader.dataset))
