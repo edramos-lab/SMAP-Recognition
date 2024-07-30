@@ -888,9 +888,7 @@ if __name__ == '__main__':
         print(f'Train Batch size: {len(images)}')
         break  # Just to show the first batch, you can remove this break to iterate through the dataset
 
-    for images, labels in data_loaders['val']:
-        print(f'Subset Batch size: {len(images)}')
-        break  # Just to show the first batch from the subset
+
     for images, labels in data_loaders['test']:
         print(f'Test Batch size: {len(images)}')
         break  # Just to show the first batch from the subset
