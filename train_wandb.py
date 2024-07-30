@@ -221,26 +221,23 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
         RandomRotation(45),
         ColorJitter(brightness=0.01, contrast=0.01, saturation=0.01),  # Reduced effect
         ToTensor(),
-        # Updated Normalize values (example only; calculate based on your dataset)
         Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     data_transforms_test = Compose([
         Resize(image_size),
         ToTensor(),
-        # Updated Normalize values (example only; calculate based on your dataset)
         Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     # Load datasets
-
     dataset = ImageFolder(os.path.join(dataset_folder, 'train'), transform=data_transforms)
-    # Load the test dataset from the 'test' folder
     test_dataset = ImageFolder(os.path.join(dataset_folder, 'test'), transform=data_transforms_test)
 
     class_counts = dict(sorted(Counter(dataset.targets).items()))
     class_names = [dataset.classes[k] for k in class_counts.keys()]
     print("Class names: ", class_names)
+    
     dataclasses = ImageFolder(dataset_folder + "/train")
     image_list = glob.glob(dataset_folder + "/train" + '/*/*.jpg')
     plot_scatter_dataset(image_list)
@@ -250,9 +247,9 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
 
     num_classes = len(dataclasses.classes)
     print("Num classes: ", num_classes)
+    
     expanded_dataset = torch.utils.data.ConcatDataset([dataset] * dataset_multiplier)
 
-    # Calculate the sizes for training, validation, and testing
     total_samples = len(expanded_dataset)
     train_size = int(total_samples)
     val_size = int(0.1 * total_samples)
@@ -260,57 +257,38 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
 
     print("Total Original Samples:", total_samples)
 
-
-    # Split the dataset into training, validation, and testing
     train_dataset = expanded_dataset
 
-    # Assuming the original dataset `expanded_dataset` has a 'targets' attribute
     original_targets = dataset.targets  # Access targets from the original dataset
 
-    # Modify your dataloaders as before
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
     print("Original Train dataset Size:", len(train_dataloader.dataset))
     print("Test Dataloader Size:", len(test_dataloader.dataset))
 
-   
-    # Get random images and their labels
     random_images, random_labels = get_random_samples(test_dataloader, 16)
-
-    # Show the images
     show_images(random_images, random_labels)
     wandb.log({"random_images": wandb.Image("random_images.png")})
 
-    indices = []
-    subset_indices = []  # This will hold the indices of the original dataset to form the subset
+    subset_indices = []
 
-    # Update: Adjusting for the `Subset` indices mapping
+    # Adjusting for the `Subset` indices mapping
     for class_index in range(num_classes):
-        # Find indices in the original dataset matching each class
         class_indices = np.where(np.array(original_targets) == class_index)[0]
-        # Find intersection with train_dataset indices to ensure correctness after split
-        class_indices = [i for i in class_indices if i in train_dataset.indices]
         np.random.shuffle(class_indices)
         subset_size = int(len(class_indices) * subset_ratio)
         subset_indices.extend(class_indices[:subset_size])
 
-    # Now we need to map subset_indices to the indices in the train_dataset subset
-    mapped_indices = [train_dataset.indices.index(i) for i in subset_indices]
+    subset_dataset = Subset(dataset, subset_indices)
 
-    subset_dataset = Subset(train_dataset, mapped_indices)
-    total_samples=len(subset_dataset)
-   
-    train_size=len(train_dataloader.dataset)
+    total_samples = len(subset_dataset)
+    train_size = len(train_dataloader.dataset)
+    test_size = len(test_dataloader.dataset)
 
-    test_size=len(test_dataloader.dataset)
-  
     print("Subset Train Dataloader Size:", len(train_dataloader.dataset))
-
     print("test Dataloader Size:", len(test_dataloader.dataset))
 
-    # Calculate balancing efficiency using the subset's indices in the context of the original dataset
     class_counts = Counter([original_targets[i] for i in subset_indices])
     max_samples = max(class_counts.values())
     balancing_efficiency = len(subset_indices) / (num_classes * max_samples)
@@ -319,7 +297,8 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
     return {
         'train': train_dataloader,
         'test': test_dataloader,
-    }, subset_dataset, balancing_efficiency, num_classes, total_samples, train_size, test_size,class_names
+    }, subset_dataset, balancing_efficiency, num_classes, total_samples, train_size, test_size, class_names
+
 
 def plot_one_image_per_class(dataloader, class_names):
         # Get the class labels from the dataloader
