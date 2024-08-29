@@ -38,7 +38,7 @@ from comet_ml import Experiment
 # Initialize Comet ML
 experiment = Experiment(
     api_key="isAZKqoDUbKLHrFCn1ojc7ckM",
-    project_name="Image Sequence Regression",
+    project_name="Image Sequence Regression2",
     workspace="edramos-lab"
 )
 
@@ -52,7 +52,17 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 # Updated directory path
-directory = 'C:/Users/edgar/OneDrive/Documentos/PhD/MLOPS/SMAP-Recognition/CustomDataset/AssemblySequence'
+directory = 'C:/Users/edgar/OneDrive/Documentos/PhD/MLOPS/SMAP-Recognition/CustomDataset/train'
+height = 299  # Example height, replace with actual value
+width = 299  # Example width, replace with actual value
+
+#import os
+import cv2
+import numpy as np
+
+
+# Updated directory path
+#directory = '/content/SMAP-Recognition/CustomDataset/'
 height = 299  # Example height, replace with actual value
 width = 299  # Example width, replace with actual value
 
@@ -64,39 +74,52 @@ datagen = ImageDataGenerator(
     shear_range=0.2,         # Shear transformations
     #zoom_range=0.2,          # Zoom in/out
     horizontal_flip=True,    # Randomly flip images horizontally
-    #vertical_flip=True,      # Randomly flip images vertically
     fill_mode='nearest'      # How to fill pixels when the image is transformed
 )
 
-# Initialize an empty array to store augmented images
+# Initialize an empty array to store augmented images and their corresponding labels
 augmented_images = np.empty(shape=(0, height, width, 3), dtype='float32')
+labels = []
 
-# Get a sorted list of files in the directory that start with 'img' and end with '.png'
-sorted_files = sorted([f for f in os.listdir(directory) if f.startswith('img') and f.endswith('.png')])
+# Iterate through each step directory
+for step in sorted(os.listdir(directory)):
+    step_dir = os.path.join(directory, step)
+    if os.path.isdir(step_dir):
+        print(f"Processing {step_dir}...")
 
-# Iterate through the sorted file list and apply data augmentation
-for i in range(len(sorted_files)):
-    image_path = os.path.join(directory, sorted_files[i])
+        # Iterate through images in the current step directory
+        for img_file in sorted(os.listdir(step_dir)):
+            img_path = os.path.join(step_dir, img_file)
 
-    # Read and process the image
-    image = cv2.imread(image_path)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    image = cv2.resize(image, (height, width))
+            # Read and process the image
+            image = cv2.imread(img_path)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            image = cv2.resize(image, (height, width))
 
-    # Expand dimensions to match the expected input shape for ImageDataGenerator
-    image = np.expand_dims(image, axis=0)
+            # Expand dimensions to match the expected input shape for ImageDataGenerator
+            image = np.expand_dims(image, axis=0)
 
-    # Apply data augmentation and store the augmented images
-    for batch in datagen.flow(image, batch_size=1):
-        augmented_image = batch[0]  # Get the augmented image
-        augmented_images = np.append(augmented_images, [augmented_image], axis=0)
-        break  # Break after the first augmented image, remove this to generate multiple augmentations per image
+            # Apply data augmentation and store the augmented images
+            for batch in datagen.flow(image, batch_size=1):
+                augmented_image = batch[0]  # Get the augmented image
+                augmented_images = np.append(augmented_images, [augmented_image], axis=0)
+                labels.append(step)  # Append the label (step name)
+                break  # Break after the first augmented image, remove this to generate multiple augmentations per image
 
 # Normalize the augmented images
-augmented_images = augmented_images / 255.0
+augmented_images /= 255.0
 
-# Print the shape of the augmented_images array to verify
+# Convert labels to a numerical format if needed (e.g., step1 -> 0, step2 -> 1, etc.)
+from sklearn.preprocessing import LabelEncoder
+label_encoder = LabelEncoder()
+labels = label_encoder.fit_transform(labels)
+
+# Print the shape of the augmented_images array and labels to verify
 print(augmented_images.shape)
+print(len(labels))
+
+# The rest of your model code remains the same, using `augmented_images` and `labels` as your dataset.
+
 
 from keras.applications import VGG16,inception_v3
 from keras import Input, Model
