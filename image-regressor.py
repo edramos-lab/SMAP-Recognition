@@ -52,7 +52,7 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 # Updated directory path
-directory = 'C:/Users/edgar/OneDrive/Documentos/PhD/MLOPS/SMAP-Recognition/CustomDataset/train'
+directory = 'C:/Users/edgar/OneDrive/Documentos/PhD/MLOPS/SMAP-Recognition/CustomDataset/test'
 height = 299  # Example height, replace with actual value
 width = 299  # Example width, replace with actual value
 
@@ -210,17 +210,17 @@ for lr in [0.001, 0.0001]:
     import os
     import cv2
     from matplotlib import pyplot as plt
-
+    directory_test = 'C:/Users/edgar/OneDrive/Documentos/PhD/MLOPS/SMAP-Recognition/CustomDataset/test'
     # Directory where your images are located
     # Ensure that the directory exists and contains images
-    if not os.path.exists(directory):
-        print(f"Directory {directory} does not exist.")
-    elif len(os.listdir(directory)) == 0:
-        print(f"No images found in directory {directory}.")
+    if not os.path.exists(directory_test):
+        print(f"Directory {directory_test} does not exist.")
+    elif len(os.listdir(directory_test)) == 0:
+        print(f"No images found in directory {directory_test}.")
     else:
         # Load the first image in the directory
-        image_files = os.listdir(directory)
-        image_path = os.path.join(directory, image_files[16])
+        image_files = os.listdir(directory_test+"//step1")
+        image_path = os.path.join(directory_test, image_files[16])
         print(f"Image path: {image_path}")
 
         test_image = cv2.imread(image_path)
