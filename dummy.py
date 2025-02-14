@@ -103,7 +103,7 @@ from keras import Input, Model
 from keras.layers import Flatten
 
 def get_model(h, w):
-    c_m = inception_v3.InceptionV3(weights='imagenet', include_top=False)#VGG16(weights='imagenet', include_top=False)
+    c_m = VGG16(weights='imagenet', include_top=False)#VGG16(weights='imagenet', include_top=False)
     custom_input = Input(shape=(h, w, 3), name='image_input')
     convolutional_input = c_m(custom_input)
     x = Flatten(name='flatten')(convolutional_input)
@@ -118,7 +118,7 @@ import matplotlib.pyplot as plt
 plt.plot(pred)
 plt.show()
 
-convoluted_array = np.empty(shape=(0, 131072)) #np.empty(shape=(0,32768)) 
+convoluted_array = np.empty(shape=(0, 41472))#131072)) #np.empty(shape=(0,32768)) 
 for j in range(0, len(augmented_images)):
     pred = convolution_model.predict(np.array([augmented_images[j]]))
     convoluted_array = np.append(convoluted_array, pred, axis=0)
@@ -170,7 +170,7 @@ import matplotlib.pyplot as plt
 # Model using GRU instead of LSTM
 model = Sequential()
 model.add(InputLayer(input_shape=(max_length, n_features)))
-model.add(LSTM(units=38, dropout=0.3))
+model.add(LSTM(units=38, dropout=0.1))
 model.add(Dense(n_features, activation='sigmoid'))
 
 

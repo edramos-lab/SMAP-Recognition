@@ -239,7 +239,7 @@ def preprocess_and_load_data_wandb(dataset_multiplier, dataset_folder, image_siz
     print("Class names: ", class_names)
     
     dataclasses = ImageFolder(dataset_folder + "/train")
-    image_list = glob.glob(dataset_folder + "/train" + '/*/*.jpg')
+    image_list = glob.glob(dataset_folder + "/train" + '/*/*.jpg') + glob.glob(dataset_folder + "/train" + '/*/*.png')
     plot_scatter_dataset(image_list)
     wandb.log({"scatter_plot": wandb.Image("scatter_plot.png")})
     distribution(dataset_folder)

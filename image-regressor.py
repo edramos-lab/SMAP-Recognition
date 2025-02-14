@@ -1,3 +1,33 @@
+import torch
+from torch.utils.data import DataLoader, Dataset
+from torchvision import transforms, models
+from PIL import Image
+import os
+from tqdm import tqdm
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from torchvision.utils import make_grid
+import numpy as np
+import torch
+from torch.utils.data import DataLoader, Dataset
+from torchvision import models, transforms
+import os
+from PIL import Image
+import numpy as np
+from tqdm import tqdm
+from comet_ml import Experiment
+import os
+import cv2
+import numpy as np
+import tensorflow as tf 
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from sklearn.preprocessing import LabelEncoder
+from keras.layers import LSTM, GRU, Dense, InputLayer
+from sklearn.metrics import mean_squared_error
+from keras.callbacks import EarlyStopping
+import os
+import cv2
+from matplotlib import pyplot as plt
+
 # -*- coding: utf-8 -*-
 """Approximation.ipynb
 
@@ -7,33 +37,12 @@ Original file is located at
     https://colab.research.google.com/drive/1-d8Fn59tOkFU72j1lqjNdgC5a6DJONPT
 """
 
-
-
-#comet_ml.init(project_name="3d-cnn-assembly-prediction")
-
-import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, Dataset
-from torchvision import transforms, models
-from PIL import Image
-import os
-from tqdm import tqdm
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from torchvision.utils import make_grid
-import numpy as np
 
-import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, Dataset
-from torchvision import models, transforms
-import os
-from PIL import Image
-import numpy as np
-from tqdm import tqdm
-from comet_ml import Experiment
 
 # Initialize Comet ML
 experiment = Experiment(
@@ -44,197 +53,85 @@ experiment = Experiment(
 
 #!git clone https://github.com/edramos-lab/SMAP-Recognition.git
 
-import os
-import cv2
-import numpy as np
-
-import tensorflow as tf 
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
-# Updated directory path
-directory = 'C:/Users/edgar/OneDrive/Documentos/PhD/MLOPS/SMAP-Recognition/CustomDataset/test'
-height = 299  # Example height, replace with actual value
-width = 299  # Example width, replace with actual value
-
-#import os
-import cv2
-import numpy as np
 
 
-# Updated directory path
-#directory = '/content/SMAP-Recognition/CustomDataset/'
-height = 299  # Example height, replace with actual value
-width = 299  # Example width, replace with actual value
+def preparation_dataset(directory, height, width):
+    # Initialize ImageDataGenerator for data augmentation
+    datagen = ImageDataGenerator(
+        rotation_range=5,       # Randomly rotate images by 20 degrees
+        width_shift_range=0.1,   # Randomly shift images horizontally by 20% of the width
+        height_shift_range=0.1,  # Randomly shift images vertically by 20% of the height
+        shear_range=0.2,         # Shear transformations
+        #zoom_range=0.2,          # Zoom in/out
+        horizontal_flip=True,    # Randomly flip images horizontally
+        fill_mode='nearest'      # How to fill pixels when the image is transformed
+    )
 
-# Initialize ImageDataGenerator for data augmentation
-datagen = ImageDataGenerator(
-    rotation_range=5,       # Randomly rotate images by 20 degrees
-    width_shift_range=0.1,   # Randomly shift images horizontally by 20% of the width
-    height_shift_range=0.1,  # Randomly shift images vertically by 20% of the height
-    shear_range=0.2,         # Shear transformations
-    #zoom_range=0.2,          # Zoom in/out
-    horizontal_flip=True,    # Randomly flip images horizontally
-    fill_mode='nearest'      # How to fill pixels when the image is transformed
-)
+    # Initialize an empty array to store augmented images and their corresponding labels
+    augmented_images = np.empty(shape=(0, height, width, 3), dtype='float32')
+    labels = []
 
-# Initialize an empty array to store augmented images and their corresponding labels
-augmented_images = np.empty(shape=(0, height, width, 3), dtype='float32')
-labels = []
+    # Iterate through each step directory
+    for step in sorted(os.listdir(directory)):
+        step_dir = os.path.join(directory, step)
+        if os.path.isdir(step_dir):
+            print(f"Processing {step_dir}...")
 
-# Iterate through each step directory
-for step in sorted(os.listdir(directory)):
-    step_dir = os.path.join(directory, step)
-    if os.path.isdir(step_dir):
-        print(f"Processing {step_dir}...")
+            # Iterate through images in the current step directory
+            for img_file in sorted(os.listdir(step_dir)):
+                img_path = os.path.join(step_dir, img_file)
 
-        # Iterate through images in the current step directory
-        for img_file in sorted(os.listdir(step_dir)):
-            img_path = os.path.join(step_dir, img_file)
+                # Read and process the image
+                image = cv2.imread(img_path)
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                image = cv2.resize(image, (height, width))
 
-            # Read and process the image
-            image = cv2.imread(img_path)
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            image = cv2.resize(image, (height, width))
+                # Expand dimensions to match the expected input shape for ImageDataGenerator
+                image = np.expand_dims(image, axis=0)
 
-            # Expand dimensions to match the expected input shape for ImageDataGenerator
-            image = np.expand_dims(image, axis=0)
+                # Apply data augmentation and store the augmented images
+                for batch in datagen.flow(image, batch_size=1):
+                    augmented_image = batch[0]  # Get the augmented image
+                    augmented_images = np.append(augmented_images, [augmented_image], axis=0)
+                    labels.append(step)  # Append the label (step name)
+                    break  # Break after the first augmented image, remove this to generate multiple augmentations per image
 
-            # Apply data augmentation and store the augmented images
-            for batch in datagen.flow(image, batch_size=1):
-                augmented_image = batch[0]  # Get the augmented image
-                augmented_images = np.append(augmented_images, [augmented_image], axis=0)
-                labels.append(step)  # Append the label (step name)
-                break  # Break after the first augmented image, remove this to generate multiple augmentations per image
+    # Normalize the augmented images
+    augmented_images /= 255.0
 
-# Normalize the augmented images
-augmented_images /= 255.0
+    # Convert labels to a numerical format if needed (e.g., step1 -> 0, step2 -> 1, etc.)
+    label_encoder = LabelEncoder()
+    labels = label_encoder.fit_transform(labels)
 
-# Convert labels to a numerical format if needed (e.g., step1 -> 0, step2 -> 1, etc.)
-from sklearn.preprocessing import LabelEncoder
-label_encoder = LabelEncoder()
-labels = label_encoder.fit_transform(labels)
+    # Print the shape of the augmented_images array and labels to verify
+    print(augmented_images.shape)
+    print(len(labels))
 
-# Print the shape of the augmented_images array and labels to verify
-print(augmented_images.shape)
-print(len(labels))
-
-# The rest of your model code remains the same, using `augmented_images` and `labels` as your dataset.
+    return augmented_images, labels
 
 
-from keras.applications import VGG16,inception_v3
-from keras import Input, Model
-from keras.layers import Flatten
+def training(X, y, max_length, n_features):
+    from keras import Sequential, optimizers  # Import the optimizers module
+    import matplotlib.pyplot as plt
 
-def get_model(h, w):
-    c_m = inception_v3.InceptionV3(weights='imagenet', include_top=False)#VGG16(weights='imagenet', include_top=False)
-    custom_input = Input(shape=(h, w, 3), name='image_input')
-    convolutional_input = c_m(custom_input)
-    x = Flatten(name='flatten')(convolutional_input)
-    # Use inputs and outputs (plural) when defining the Model
-    my_model = Model(inputs=custom_input, outputs=x)
-    return my_model
+    # Model using GRU instead of LSTM
+    model = Sequential()
+    model.add(InputLayer(input_shape=(max_length, n_features)))
+    model.add(LSTM(units=38, dropout=0.3))
+    model.add(Dense(n_features, activation='sigmoid'))
 
-convolution_model = get_model(height, width)
-
-pred = convolution_model.predict(np.array([augmented_images[0]]))[0]
-import matplotlib.pyplot as plt
-plt.plot(pred)
-plt.show()
-
-convoluted_array = np.empty(shape=(0, 131072)) #np.empty(shape=(0,32768)) 
-for j in range(0, len(augmented_images)):
-    pred = convolution_model.predict(np.array([augmented_images[j]]))
-    convoluted_array = np.append(convoluted_array, pred, axis=0)
-print(convoluted_array.shape)
-
-from sklearn.decomposition import PCA
-
-pca = PCA(n_components=0.99)
-pca.fit(convoluted_array)
-print(pca.n_components_)
-
-decomposed_array = pca.transform(convoluted_array)
-print(decomposed_array.shape)
-
-max_length = 38
-n_features = pca.n_components_
-X = np.empty(shape=(0, max_length, n_features))
-y = np.empty(shape=(0, n_features))
-c = 0
-
-def pad_seq(im_seq, max_len):
-    empty = np.zeros(im_seq[0].shape)
-    result = []
-    ep = [empty] * (max_len - len(im_seq))
-    for i in range(0, len(ep)):
-        result.append(ep[i])
-    for i in range(0, len(im_seq)):
-        result.append(im_seq[i])
-
-    # Trim the sequence to max_len
-    return np.array(result[:max_len], dtype='float64')
-
-for i in range(0, len(decomposed_array) - 1):
-    inp = decomposed_array[0:c + 1]
-    inp = pad_seq(inp, max_length)
-    target = decomposed_array[c + 1]
-    X = np.append(X, [inp], axis=0)
-    y = np.append(y, [target], axis=0)
-    c += 1
-print(X.shape)
-print(y.shape)
-
-from keras import Sequential, optimizers  # Import the optimizers module
-from keras.layers import LSTM, GRU, Dense, InputLayer
-from sklearn.metrics import mean_squared_error
-from keras.callbacks import EarlyStopping
-import matplotlib.pyplot as plt
-
-# Model using GRU instead of LSTM
-model = Sequential()
-model.add(InputLayer(input_shape=(max_length, n_features)))
-model.add(LSTM(units=38, dropout=0.3))
-model.add(Dense(n_features, activation='sigmoid'))
+    for lr in [0.001, 0.0001]:
+        model.compile(loss='mse', optimizer=optimizers.Adam(learning_rate=lr))  
+        early_stopping = EarlyStopping(monitor='val_loss')
+        h = model.fit(X, y, validation_split=0.6, epochs=3000, verbose=1)
+        # Save the model
+        model.save('model-VGG-Regression-'+str(lr)+'.keras')
+        plt.plot(h.history['loss'])
+        plt.plot(h.history['val_loss'])
+        plt.show()
 
 
-for lr in [0.001, 0.0001]:
-    model.compile(loss='mse', optimizer=optimizers.Adam(learning_rate=lr))  
-    early_stopping = EarlyStopping(monitor='val_loss')
-    h = model.fit(X, y, validation_split=0.6, epochs=3000, verbose=1)
-    # Save the model
-    model.save('model-VGG-Regression-'+str(lr)+'.keras')
-    plt.plot(h.history['loss'])
-    plt.plot(h.history['val_loss'])
-    plt.show()
-
-    import os
-    import cv2
-    from matplotlib import pyplot as plt
-    directory_test = 'C:/Users/edgar/OneDrive/Documentos/PhD/MLOPS/SMAP-Recognition/CustomDataset/test'
-    # Directory where your images are located
-    # Ensure that the directory exists and contains images
-    if not os.path.exists(directory_test):
-        print(f"Directory {directory_test} does not exist.")
-    elif len(os.listdir(directory_test)) == 0:
-        print(f"No images found in directory {directory_test}.")
-    else:
-        # Load the first image in the directory
-        image_files = os.listdir(directory_test+"//step1")
-        image_path = os.path.join(directory_test, image_files[16])
-        print(f"Image path: {image_path}")
-
-        test_image = cv2.imread(image_path)
-
-        if test_image is None:
-            print("Failed to load image. Please check the file path.")
-        else:
-            test_image = cv2.cvtColor(test_image, cv2.COLOR_BGR2RGB)
-            test_image = cv2.resize(test_image, (height, width))
-            plt.imshow(test_image)
-            plt.show()
-
-    import numpy as np
-    from sklearn.preprocessing import MinMaxScaler
+def inference(model, test_image, height, width, max_length, pca):
 
     # Example normalization function using Min-Max scaling
     def normalize(data):
@@ -246,13 +143,6 @@ for lr in [0.001, 0.0001]:
     pred = pca.transform(pred)
     pred = normalize(pred)
     pred = np.array([pad_seq(pred, max_length)])
-
-
-
-    # Load the saved model
-    #model = tf.keras.models.load_model('model-VGG-Regression.h5')
-
-
 
     pred = model.predict(pred)
 
@@ -268,3 +158,34 @@ for lr in [0.001, 0.0001]:
     print(ims_pics[index])
     plt.imshow(image)
     plt.show()
+
+
+def main():
+    directory = 'C:/Users/edgar/OneDrive/Documentos/PhD/MLOPS/SMAP-Recognition/CustomDataset/test'
+    height = 299  # Example height, replace with actual value
+    width = 299  # Example width, replace with actual value
+    max_length = 38
+    n_features = pca.n_components_
+
+    augmented_images, labels = preparation_dataset(directory, height, width)
+    X, y = prepare_data(augmented_images, labels, max_length, n_features)
+    training(X, y, max_length, n_features)
+
+    # Load the saved model
+    model = tf.keras.models.load_model('model-VGG-Regression.h5')
+
+    # Inference with a single test image
+    test_image = cv2.imread(image_path)
+    if test_image is None:
+        print("Failed to load image. Please check the file path.")
+    else:
+        test_image = cv2.cvtColor(test_image, cv2.COLOR_BGR2RGB)
+        test_image = cv2.resize(test_image, (height, width))
+        plt.imshow(test_image)
+        plt.show()
+
+    inference(model, test_image, height, width, max_length, pca)
+
+
+if __name__ == "__main__":
+    main()
